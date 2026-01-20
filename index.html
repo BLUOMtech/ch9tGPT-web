@@ -32,86 +32,86 @@ h1{text-align:center;margin-bottom:20px;}
 <div class="output-area" id="fileOutput"></div>
 </div>
 
-<!-- ERUDA DEVTOOLS -->
+<!-- ERUDA DEVTOOLS FULLSCREEN -->
 <script src="https://cdn.jsdelivr.net/gh/liriliri/eruda/eruda.min.js"></script>
 <script>
-eruda.init();
-eruda.show(); // ALWAYS OPEN CONSOLE
-console.log("Eruda devtools loaded ✔");
+  // Attach console to full page & always show
+  eruda.init({container: document.body});
+  eruda.show(); 
+  console.log("Eruda full-screen console loaded ✅");
 </script>
 
-<!-- AI MODEL + MEMORY + FILE UPLOAD + IMAGE/CODE GEN -->
+<!-- AI MODEL -->
 <script>
-// --- AI CLASS ---
 class Ch9tGPT {
-constructor(){
-this.memory=[];
-this.fileData=[];
-this.personality={mood:"curious",energy:80};
-this.IP=300;
-}
-remember(text){
-if(!text) return;
-this.memory.push(text);
-if(this.memory.length>200) this.memory.shift();
-console.log("Memory updated:",this.memory.slice(-5));
-}
-adjustMood(input){
-const t=input.toLowerCase();
-if(t.includes("hi")||t.includes("hello")) this.personality.mood="happy";
-if(t.includes("why")||t.includes("how")) this.personality.mood="curious";
-if(t.includes("fun")) this.personality.mood="playful";
-if(t.includes("sad")) this.personality.mood="comforting";
-}
-generateResponse(input){
-this.remember(input);
-this.adjustMood(input);
-const t=input.toLowerCase();
-if(t==="hi"||t==="hey"||t==="hello") return "😄 Hey! How’s it going?";
-if(t.includes("name")) return "I’m ch9tGPT 🤖 What about you?";
-if(t.includes("how are you")) return "Feeling great today! 😄";
-if(t.includes("draw")||t.includes("image")) return this.generateImage(input);
-if(t.includes("code")||t.includes("python")||t.includes("html")||t.includes("css")) return this.generateCode(input);
-let recent=this.memory.slice(-20).join(" ");
-let files=this.fileData.map(f=>f.text).join(" ");
-let combined=`${recent} ${files} ${input}`.replace(/\[object.*?\]/gi,"");
-if(combined.length>this.IP) combined=combined.slice(0,this.IP);
-let emoji="🤔 ";
-if(this.personality.mood==="happy") emoji="😄 ";
-if(this.personality.mood==="playful") emoji="😏 ";
-if(this.personality.mood==="comforting") emoji="💙 ";
-let out=emoji+combined.trim();
-if(!/[.!?]$/.test(out)) out+=".";
-console.log("Bot response:",out);
-this.remember(out);
-return out;
-}
-generateImage(prompt){
-return `🖼️ (Pretend image) Generated for: "${prompt}"`;
-}
-generateCode(prompt){
-if(prompt.includes("python")) return "```python\nprint('Hello from ch9tGPT')\n```";
-if(prompt.includes("html")) return "```html\n<h1>Hello from ch9tGPT</h1>\n```";
-if(prompt.includes("css")) return "```css\nbody { background:#4af; color:white; }\n```";
-return "```javascript\nconsole.log('Hello from ch9tGPT');\n```";
-}
-async addFile(file){
-return new Promise(resolve=>{
-const reader=new FileReader();
-reader.onload=()=>{
-this.fileData.push({name:file.name,type:file.type,text:reader.result});
-console.log("File added:",file.name);
-resolve();
-};
-reader.readAsText(file);
-});
-}
+  constructor(){
+    this.memory=[];
+    this.fileData=[];
+    this.personality={mood:"curious",energy:80};
+    this.IP=300;
+  }
+  remember(text){
+    if(!text) return;
+    this.memory.push(text);
+    if(this.memory.length>200) this.memory.shift();
+    console.log("Memory updated:",this.memory.slice(-5));
+  }
+  adjustMood(input){
+    const t=input.toLowerCase();
+    if(t.includes("hi")||t.includes("hello")) this.personality.mood="happy";
+    if(t.includes("why")||t.includes("how")) this.personality.mood="curious";
+    if(t.includes("fun")) this.personality.mood="playful";
+    if(t.includes("sad")) this.personality.mood="comforting";
+  }
+  generateResponse(input){
+    this.remember(input);
+    this.adjustMood(input);
+    const t=input.toLowerCase();
+    if(t==="hi"||t==="hey"||t==="hello") return "😄 Hey! How’s it going?";
+    if(t.includes("name")) return "I’m ch9tGPT 🤖 What about you?";
+    if(t.includes("how are you")) return "Feeling great today! 😄";
+    if(t.includes("draw")||t.includes("image")) return this.generateImage(input);
+    if(t.includes("code")||t.includes("python")||t.includes("html")||t.includes("css")) return this.generateCode(input);
+    let recent=this.memory.slice(-20).join(" ");
+    let files=this.fileData.map(f=>f.text).join(" ");
+    let combined=`${recent} ${files} ${input}`.replace(/\[object.*?\]/gi,"");
+    if(combined.length>this.IP) combined=combined.slice(0,this.IP);
+    let emoji="🤔 ";
+    if(this.personality.mood==="happy") emoji="😄 ";
+    if(this.personality.mood==="playful") emoji="😏 ";
+    if(this.personality.mood==="comforting") emoji="💙 ";
+    let out=emoji+combined.trim();
+    if(!/[.!?]$/.test(out)) out+=".";
+    console.log("Bot response:",out);
+    this.remember(out);
+    return out;
+  }
+  generateImage(prompt){
+    return `🖼️ (Pretend image) Generated for: "${prompt}"`;
+  }
+  generateCode(prompt){
+    if(prompt.includes("python")) return "```python\nprint('Hello from ch9tGPT')\n```";
+    if(prompt.includes("html")) return "```html\n<h1>Hello from ch9tGPT</h1>\n```";
+    if(prompt.includes("css")) return "```css\nbody { background:#4af; color:white; }\n```";
+    return "```javascript\nconsole.log('Hello from ch9tGPT');\n```";
+  }
+  async addFile(file){
+    return new Promise(resolve=>{
+      const reader=new FileReader();
+      reader.onload=()=>{
+        this.fileData.push({name:file.name,type:file.type,text:reader.result});
+        console.log("File added:",file.name);
+        resolve();
+      };
+      reader.readAsText(file);
+    });
+  }
 }
 
-// --- GLOBAL AI INSTANCE ---
+// GLOBAL AI INSTANCE
 window.ch9tGPT=new Ch9tGPT();
 
-// --- CHAT FUNCTIONS ---
+// CHAT FUNCTIONS
 const messagesDiv=document.getElementById("messages");
 const input=document.getElementById("userInput");
 const sendBtn=document.getElementById("sendBtn");
@@ -119,37 +119,37 @@ const fileInput=document.getElementById("fileInput");
 const fileOutput=document.getElementById("fileOutput");
 
 function addMessage(text,sender){
-const div=document.createElement("div");
-div.className="msg "+sender;
-div.textContent=text;
-messagesDiv.appendChild(div);
-messagesDiv.scrollTop=messagesDiv.scrollHeight;
+  const div=document.createElement("div");
+  div.className="msg "+sender;
+  div.textContent=text;
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop=messagesDiv.scrollHeight;
 }
 
 // SEND MESSAGE
 sendBtn.onclick=async()=>{
-let text=input.value.trim();
-if(!text) return;
-addMessage(text,"user");
-input.value="";
-let reply=window.ch9tGPT.generateResponse(text);
-addMessage(reply,"bot");
+  let text=input.value.trim();
+  if(!text) return;
+  addMessage(text,"user");
+  input.value="";
+  let reply=window.ch9tGPT.generateResponse(text);
+  addMessage(reply,"bot");
 };
 
 // ENTER KEY
 input.addEventListener("keypress",e=>{
-if(e.key==="Enter") sendBtn.click();
+  if(e.key==="Enter") sendBtn.click();
 });
 
 // FILE UPLOAD
 fileInput.addEventListener("change",async e=>{
-fileOutput.innerHTML="";
-for(const f of e.target.files){
-await window.ch9tGPT.addFile(f);
-const div=document.createElement("div");
-div.textContent=`📄 ${f.name} uploaded`;
-fileOutput.appendChild(div);
-}
+  fileOutput.innerHTML="";
+  for(const f of e.target.files){
+    await window.ch9tGPT.addFile(f);
+    const div=document.createElement("div");
+    div.textContent=`📄 ${f.name} uploaded`;
+    fileOutput.appendChild(div);
+  }
 });
 </script>
 </body>
