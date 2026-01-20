@@ -1,15 +1,13 @@
 class Ch9tGPT {
     constructor() {
-        this.memory = []; // Conversation memory
-        this.fileData = []; // Uploaded files
-        this.personality = { mood: "curious", friendliness: 0.8, humor: 0.5 };
-        this.temperature = 0.7; // randomness
-        this.wordEmbeddings = {}; // Mini embeddings for generative response
+        this.memory = []; // Only plain text
+        this.fileData = []; // Learned content from uploads
+        this.personality = { mood: "curious", friendliness: 0.8, humor: 0.4 };
+        this.temperature = 0.7; // randomness for creativity
     }
 
-    // Memory management
-    remember(text, source="text") {
-        this.memory.push({ content: text, source: source, timestamp: Date.now() });
+    remember(message) {
+        this.memory.push(message);
         this.saveMemory();
     }
 
@@ -25,49 +23,51 @@ class Ch9tGPT {
         if(files) this.fileData = JSON.parse(files);
     }
 
-    // Learn from files
     learnFromFile(fileObj) {
         this.fileData.push(fileObj);
         this.saveMemory();
     }
 
-    // Mini neural network inspired text generation
-    generateResponse(input) {
-        this.remember("You: " + input);
+    adjustMood(input){
+        const text = input.toLowerCase();
+        if(text.includes("sad") || text.includes("unhappy")) this.personality.mood="comforting";
+        else if(text.includes("happy") || text.includes("great")) this.personality.mood="happy";
+        else this.personality.mood="curious";
+        // small chance to add humor
+        if(Math.random() < 0.2) this.personality.mood="playful";
+    }
 
-        // Combine recent memory + files
-        const recent = this.memory.slice(-20).map(m=>m.content).join(" ");
-        const files = this.fileData.map(f => f.text || "").join(" ");
-        const context = recent + " " + files + " " + input;
+    generateResponse(input){
+        this.remember(input);
 
-        // Tokenize and build response
+        // Combine recent memory and file data
+        const recent = this.memory.slice(-20).join(" ");
+        const fileContext = this.fileData.map(f => f.text || "").join(" ");
+        const context = recent + " " + fileContext + " " + input;
+
+        // Tokenize context
         const words = context.split(/\s+/);
         let response = "";
-        const length = Math.min(25 + Math.floor(Math.random()*10), words.length);
+        const length = Math.min(12 + Math.floor(Math.random()*15), words.length);
 
         for(let i=0;i<length;i++){
             const idx = Math.floor(Math.random() * words.length);
-            // Introduce randomness
-            if(Math.random() < this.temperature) response += words[idx] + " ";
+            response += words[idx] + " ";
         }
 
-        // Personality adjustment
-        if(this.personality.mood === "happy") response = "😄 " + response;
-        if(this.personality.mood === "curious") response = "Hmm… " + response;
-        if(Math.random() < this.personality.humor) response += " 😏";
-
+        // Personality / mood twist
         response = response.trim();
-        response = response.charAt(0).toUpperCase() + response.slice(1) + ".";
-        this.remember("ch9tGPT: " + response);
+        if(this.personality.mood === "happy") response = "😄 " + response;
+        else if(this.personality.mood === "curious") response = "🤔 " + response;
+        else if(this.personality.mood === "playful") response = "😏 " + response;
+        else if(this.personality.mood === "comforting") response = "💙 " + response;
 
+        // Capitalize first letter + punctuation
+        response = response.charAt(0).toUpperCase() + response.slice(1);
+        if(!/[.!?]$/.test(response)) response += ".";
+
+        this.remember(response);
         return response;
-    }
-
-    // Mood adjustment based on sentiment
-    adjustMood(input){
-        if(input.includes("sad") || input.includes("unhappy")) this.personality.mood="comforting";
-        if(input.includes("happy") || input.includes("great")) this.personality.mood="happy";
-        if(input.includes("bored")) this.personality.mood="curious";
     }
 }
 
