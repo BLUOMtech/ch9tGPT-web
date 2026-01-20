@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ch9tGPT Super Ultimate</title>
+<title>ch9tGPT Super Ultimate 3.1</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -44,7 +44,6 @@ function addMessage(sender, content){
     chatbox.scrollTop = chatbox.scrollHeight;
 }
 
-// Chat input
 sendBtn.addEventListener("click", ()=>{
     const text = input.value.trim();
     if(!text) return;
@@ -56,7 +55,6 @@ sendBtn.addEventListener("click", ()=>{
     setTimeout(()=>{
         let response = bot.generateResponse(text);
 
-        // Detect special commands
         if(text.toLowerCase().includes("draw") || text.toLowerCase().includes("image")){
             response = generateImage(text);
         } else if(text.toLowerCase().includes("code") || text.toLowerCase().includes("program")){
@@ -70,12 +68,10 @@ sendBtn.addEventListener("click", ()=>{
     input.value="";
 });
 
-// Enter key
 input.addEventListener("keypress", e=>{
     if(e.key==="Enter") sendBtn.click();
 });
 
-// File uploads
 fileUpload.addEventListener("change", handleFileUpload);
 </script>
 </body>

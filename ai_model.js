@@ -1,13 +1,13 @@
 class Ch9tGPT {
     constructor() {
-        this.memory = []; // Only plain text
-        this.fileData = []; // Learned content from uploads
+        this.memory = []; // Only plain strings
+        this.fileData = []; // Uploaded content (text only for AI)
         this.personality = { mood: "curious", friendliness: 0.8, humor: 0.4 };
-        this.temperature = 0.7; // randomness for creativity
+        this.temperature = 0.7;
     }
 
     remember(message) {
-        this.memory.push(message);
+        if(typeof message === "string") this.memory.push(message);
         this.saveMemory();
     }
 
@@ -24,7 +24,9 @@ class Ch9tGPT {
     }
 
     learnFromFile(fileObj) {
-        this.fileData.push(fileObj);
+        // Only store text, never raw objects
+        const textContent = fileObj.text ? fileObj.text : "";
+        this.fileData.push({type: fileObj.type, name: fileObj.name, text: textContent});
         this.saveMemory();
     }
 
@@ -33,19 +35,17 @@ class Ch9tGPT {
         if(text.includes("sad") || text.includes("unhappy")) this.personality.mood="comforting";
         else if(text.includes("happy") || text.includes("great")) this.personality.mood="happy";
         else this.personality.mood="curious";
-        // small chance to add humor
         if(Math.random() < 0.2) this.personality.mood="playful";
     }
 
     generateResponse(input){
         this.remember(input);
 
-        // Combine recent memory and file data
+        // Build context only from strings
         const recent = this.memory.slice(-20).join(" ");
-        const fileContext = this.fileData.map(f => f.text || "").join(" ");
+        const fileContext = this.fileData.map(f => f.text).filter(t => t).join(" ");
         const context = recent + " " + fileContext + " " + input;
 
-        // Tokenize context
         const words = context.split(/\s+/);
         let response = "";
         const length = Math.min(12 + Math.floor(Math.random()*15), words.length);
@@ -55,14 +55,15 @@ class Ch9tGPT {
             response += words[idx] + " ";
         }
 
-        // Personality / mood twist
         response = response.trim();
+
+        // Mood twist
         if(this.personality.mood === "happy") response = "😄 " + response;
         else if(this.personality.mood === "curious") response = "🤔 " + response;
         else if(this.personality.mood === "playful") response = "😏 " + response;
         else if(this.personality.mood === "comforting") response = "💙 " + response;
 
-        // Capitalize first letter + punctuation
+        // Capitalize + punctuation
         response = response.charAt(0).toUpperCase() + response.slice(1);
         if(!/[.!?]$/.test(response)) response += ".";
 

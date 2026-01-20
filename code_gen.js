@@ -9,7 +9,7 @@ function generateCode(prompt){
     } else if(prompt.includes("javascript")){
         code = `function hello(){\n    console.log("Hello World");\n}\nhello();`;
     } else {
-        code = "// Sorry, I don't know that language. Try HTML, Python, or JavaScript.";
+        code = "// I can generate HTML, Python, or JavaScript code. Try again!";
     }
 
     return code;
