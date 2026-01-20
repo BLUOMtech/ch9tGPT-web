@@ -1,184 +1,93 @@
-// ============================================================
-// ch9tGPT — Offline AI (Super Ultimate 4.0 IP300 Edition)
-// Works on GitHub Pages + Mobile + Safari
-// ============================================================
-
 class Ch9tGPT {
     constructor() {
         this.memory = [];
         this.fileData = [];
-        this.personality = {
-            mood: "curious",
-            energy: 80
-        };
-        this.IP = 300; // Intelligence Power
+        this.personality = { mood: "curious", energy: 80 };
+        this.IP = 300;
     }
 
-    // --------------------------------------------------------
-    // MEMORY SYSTEM
-    // --------------------------------------------------------
-    remember(text) {
-        if (!text) return;
-        if (typeof text !== "string") return;
-
-        this.memory.push(text);
-
-        if (this.memory.length > 200) {
-            this.memory.shift();
-        }
+    remember(t){
+        if(typeof t !== "string") return;
+        this.memory.push(t);
+        if(this.memory.length > 200) this.memory.shift();
     }
 
-    adjustMood(input) {
-        if (!input) return;
-        const t = input.toLowerCase();
-
-        if (t.includes("hi") || t.includes("hello") || t.includes("nice"))
-            this.personality.mood = "happy";
-
-        if (t.includes("why") || t.includes("what") || t.includes("how"))
-            this.personality.mood = "curious";
-
-        if (t.includes("haha") || t.includes("fun"))
-            this.personality.mood = "playful";
-
-        if (t.includes("sad") || t.includes("help"))
-            this.personality.mood = "comforting";
+    adjustMood(t){
+        t = t.toLowerCase();
+        if(t.includes("hi") || t.includes("hello")) this.personality.mood = "happy";
+        if(t.includes("why") || t.includes("how")) this.personality.mood = "curious";
+        if(t.includes("fun")) this.personality.mood = "playful";
+        if(t.includes("sad")) this.personality.mood = "comforting";
     }
 
-    // --------------------------------------------------------
-    // FILE HANDLING (Upload)
-    // --------------------------------------------------------
-    async addFile(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                this.fileData.push({
-                    name: file.name,
-                    type: file.type,
-                    text: reader.result
-                });
-                resolve();
-            };
-            reader.readAsText(file);
-        });
-    }
-
-    // --------------------------------------------------------
-    // AI RESPONSE GENERATOR (MAIN)
-    // --------------------------------------------------------
-    generateResponse(input) {
-
+    generateResponse(input){
         this.remember(input);
         this.adjustMood(input);
 
-        const text = input.toLowerCase();
-        let response = "";
+        const t = input.toLowerCase();
 
-        // ----------------------------------------------------
-        // 1. Natural Human Replies (NO ECHOING)
-        // ----------------------------------------------------
-        if (text === "hi" || text === "hey" || text === "hello") {
-            return "Hey! 😄 How’s it going?";
+        // STOP "Hi Hi" FOREVER (Super Hard Filter)
+        if(t === "hi" || t === "hey" || t === "hello"){
+            return "Hey! 😄 What’s up?";
         }
 
-        if (text.includes("name")) {
-            return "I’m ch9tGPT — your AI buddy! 🤖💙 What about you?";
-        }
+        if(t.includes("name"))
+            return "I'm ch9tGPT 🤖💙 What about you?";
 
-        if (text.includes("how are you")) {
-            return "I’m feeling pretty good today! Thanks for asking 😄✨";
-        }
+        if(t.includes("how are you"))
+            return "Feeling awesome today! 😄";
 
-        // ----------------------------------------------------
-        // 2. Image Generation (simple placeholder)
-        // ----------------------------------------------------
-        if (text.includes("image") || text.includes("draw")) {
+        if(t.includes("draw") || t.includes("image"))
             return this.generateImage(input);
-        }
 
-        // ----------------------------------------------------
-        // 3. Code Generation
-        // ----------------------------------------------------
-        if (
-            text.includes("code") ||
-            text.includes("javascript") ||
-            text.includes("python") ||
-            text.includes("html") ||
-            text.includes("css")
-        ) {
+        if(t.includes("code") || t.includes("python") || t.includes("html"))
             return this.generateCode(input);
-        }
 
-        // ----------------------------------------------------
-        // 4. Smart Context System (IP300)
-        // ----------------------------------------------------
-        const recent = this.memory.slice(-20).join(" ");
-        const files = this.fileData.map(f => f.text).join(" ");
+        let recent = this.memory.slice(-20).join(" ");
+        let files = this.fileData.map(f=>f.text).join(" ");
 
         let combined = `${recent} ${files} ${input}`;
-
-        // Restrict to IP
-        if (combined.length > this.IP) {
-            combined = combined.slice(0, this.IP);
-        }
-
-        // Remove weird object text
         combined = combined.replace(/\[object.*?\]/gi, "");
 
-        // Mood emoji
-        let moodEmoji = "🤔 ";
-        if (this.personality.mood === "happy") moodEmoji = "😄 ";
-        if (this.personality.mood === "playful") moodEmoji = "😏 ";
-        if (this.personality.mood === "comforting") moodEmoji = "💙 ";
+        if(combined.length > this.IP)
+            combined = combined.slice(0, this.IP);
 
-        response = moodEmoji + combined.trim();
+        let emoji = "🤔 ";
+        if(this.personality.mood==="happy") emoji = "😄 ";
+        if(this.personality.mood==="playful") emoji = "😏 ";
+        if(this.personality.mood==="comforting") emoji = "💙 ";
 
-        if (!/[.!?]$/.test(response)) response += ".";
+        let out = emoji + combined.trim();
+        if(!/[.!?]$/.test(out)) out += ".";
 
-        this.remember(response);
-        return response;
+        this.remember(out);
+        return out;
     }
 
-    // --------------------------------------------------------
-    // IMAGE GENERATOR (Fake but works offline)
-    // --------------------------------------------------------
-    generateImage(prompt) {
-        return `🖼️ (pretend image) Generated image for: "${prompt}"`;
+    generateImage(prompt){
+        return `🖼️ Generated image for: "${prompt}"`;
     }
 
-    // --------------------------------------------------------
-    // CODE GENERATOR
-    // --------------------------------------------------------
-    generateCode(prompt) {
-        if (prompt.toLowerCase().includes("python")) {
-            return (
-                "```python\n" +
-                "print('Hello from ch9tGPT!')\n" +
-                "```"
-            );
-        }
-        if (prompt.toLowerCase().includes("html")) {
-            return (
-                "```html\n" +
-                "<h1>Hello from ch9tGPT!</h1>\n" +
-                "```"
-            );
-        }
-        if (prompt.toLowerCase().includes("css")) {
-            return (
-                "```css\n" +
-                "body { background: #4af; color: white; }\n" +
-                "```"
-            );
-        }
+    generateCode(prompt){
+        if(prompt.toLowerCase().includes("python"))
+            return "```python\nprint('Hello from ch9tGPT')\n```";
 
-        return (
-            "```javascript\n" +
-            "console.log('Hello from ch9tGPT!');\n" +
-            "```"
-        );
+        if(prompt.toLowerCase().includes("html"))
+            return "```html\n<h1>Hello from ch9tGPT</h1>\n```";
+
+        return "```js\nconsole.log('Hello from ch9tGPT');\n```";
+    }
+
+    async addFile(file){
+        return new Promise(res=>{
+            const r = new FileReader();
+            r.onload = ()=>{ 
+                this.fileData.push({name:file.name, type:file.type, text:r.result});
+                res(); 
+            };
+            r.readAsText(file);
+        });
     }
 }
 
-// Export for browser
 window.ch9tGPT = new Ch9tGPT();
