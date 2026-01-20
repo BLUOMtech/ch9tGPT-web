@@ -1,67 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ch9tGPT Super Ultimate 4.1</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ch9tGPT</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #0d0f14;
+            color: white;
+        }
+
+        #app {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #messages {
+            background: #1a1c22;
+            padding: 15px;
+            border-radius: 8px;
+            height: 350px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+        }
+
+        .msg {
+            margin-bottom: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            max-width: 80%;
+        }
+
+        .user {
+            background: #2d75ff;
+            margin-left: auto;
+        }
+
+        .bot {
+            background: #2e2e38;
+            margin-right: auto;
+        }
+
+        #input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 16px;
+        }
+
+        #sendBtn {
+            padding: 12px 20px;
+            background: #2d75ff;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #sendBtn:hover {
+            background: #1f5fe0;
+        }
+    </style>
 </head>
+
 <body>
-<div class="container">
-<h1>ch9tGPT 🤖</h1>
-<div id="chatbox"></div>
+    <div id="app">
+        <h1>ch9tGPT</h1>
 
-<input type="text" id="userInput" placeholder="Type a message...">
-<button id="sendBtn">Send</button>
-<input type="file" id="fileUpload" multiple>
-</div>
+        <div id="messages"></div>
 
-<script src="ai_model.js"></script>
-<script src="upload_handler.js"></script>
-<script src="image_gen.js"></script>
-<script src="code_gen.js"></script>
+        <div id="input-area">
+            <input id="userInput" placeholder="Type a message..." />
+            <button id="sendBtn">Send</button>
+        </div>
+    </div>
 
-<script>
-const chatbox=document.getElementById("chatbox");
-const input=document.getElementById("userInput");
-const sendBtn=document.getElementById("sendBtn");
-const fileUpload=document.getElementById("fileUpload");
+    <!-- DEVTOOLS FOR IPAD -->
+    <script src="https://cdn.jsdelivr.net/gh/liriliri/eruda/eruda.min.js"></script>
+    <script>
+        eruda.init();
+        console.log("Eruda dev tools loaded ✔");
+    </script>
 
-function addMessage(sender, content){
-    const msg=document.createElement("div");
-    msg.className=sender;
+    <!-- AI MODEL -->
+    <script>
+        const messagesDiv = document.getElementById("messages");
+        const input = document.getElementById("userInput");
+        const sendBtn = document.getElementById("sendBtn");
 
-    if(content.startsWith("data:image")) msg.innerHTML=`<img src="${content}" alt="Generated Image"/>`;
-    else if(content.includes("<") || content.includes("function") || content.includes("def")) msg.innerHTML=`<pre>${content}</pre>`;
-    else msg.textContent=content;
+        function addMessage(text, sender) {
+            const div = document.createElement("div");
+            div.className = "msg " + sender;
+            div.textContent = text;
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
 
-    chatbox.appendChild(msg);
-    chatbox.scrollTop=chatbox.scrollHeight;
-}
+        function genResponse(msg) {
+            console.log("User said:", msg);
 
-sendBtn.addEventListener("click",()=>{
-    const text=input.value.trim();
-    if(!text) return;
+            // FIXED AI RESPONSE
+            if (!msg || msg.trim() === "") return "🤔 Say something, bro!";
 
-    addMessage("You", text);
-    bot.adjustMood(text);
-    addMessage("ch9tGPT","Typing...");
+            // Simple personality
+            const responses = [
+                "😄 That sounds cool!",
+                "🤔 Interesting...",
+                "🔥 Nice!",
+                "😎 Tell me more!",
+                "🤖 I'm thinking...",
+                "✨ Oooh okay!"
+            ];
 
-    setTimeout(()=>{
-        let response=bot.generateResponse(text);
+            const random = responses[Math.floor(Math.random() * responses.length)];
 
-        chatbox.lastChild.textContent="";
-        addMessage("ch9tGPT",response);
-    }, 500+Math.random()*1200);
+            const final = random + " You said: " + msg;
+            console.log("Bot response:", final);
+            return final;
+        }
 
-    input.value="";
-});
+        sendBtn.onclick = () => {
+            const text = input.value.trim();
+            if (!text) return;
 
-input.addEventListener("keypress",e=>{
-    if(e.key==="Enter") sendBtn.click();
-});
+            addMessage(text, "user");
+            input.value = "";
 
-fileUpload.addEventListener("change",handleFileUpload);
-</script>
+            const reply = genResponse(text);
+            addMessage(reply, "bot");
+        };
+    </script>
 </body>
 </html>
