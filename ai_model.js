@@ -1,9 +1,9 @@
 class Ch9tGPT {
     constructor() {
-        this.memory = []; // store messages as strings
-        this.fileData = []; // uploaded file text
+        this.memory = []; 
+        this.fileData = []; 
         this.personality = { mood: "curious", friendliness: 0.8, humor: 0.4 };
-        this.IQ = 300; // Intelligence Power
+        this.IP = 300; 
     }
 
     remember(message) {
@@ -45,39 +45,44 @@ class Ch9tGPT {
 
     generateResponse(input) {
         this.remember(input);
-
-        // Build context
-        const recent = this.memory.slice(-50).join(" ");
-        const files = this.fileData.map(f=>f.text).filter(t=>t).join(" ");
-        const context = recent + " " + files + " " + input;
-
-        // Break into phrases (~50 chars)
-        const phrases = context.match(/.{1,50}/g)||[];
-
-        // Weighted relevance
-        const relevance = phrases.map((p,i)=>{
-            let score = 1 + (i/phrases.length);
-            if(p.toLowerCase().includes(input.toLowerCase())) score += 2;
-            return {phrase:p, score};
-        });
-
-        relevance.sort((a,b)=>b.score-a.score);
-
-        // Build response with IP=300 chars max
+        const text = input.toLowerCase();
         let response = "";
-        for(let r of relevance){
-            if(response.length + r.phrase.length > this.IP) break;
-            response += r.phrase + " ";
+
+        // Keyword-based natural replies first
+        if(text.includes("name")) response = "I’m ch9tGPT 🤖. What about you?";
+        else if(text.includes("hi") || text.includes("hello")) response = "Hey! How’s it going?";
+        else if(text.includes("how are you")) response = "I’m doing great 😄 How about you?";
+        else if(text.includes("draw") || text.includes("image")) response = generateImage(input);
+        else if(text.includes("code") || text.includes("program")) response = generateCode(input);
+        else {
+            // fallback: IP300 phrase-based context reasoning
+            const recent = this.memory.slice(-50).join(" ");
+            const files = this.fileData.map(f=>f.text).filter(t=>t).join(" ");
+            const context = recent + " " + files + " " + input;
+
+            const phrases = context.match(/.{1,50}/g)||[];
+            const relevance = phrases.map((p,i)=>{
+                let score = 1 + (i/phrases.length);
+                if(p.toLowerCase().includes(input.toLowerCase())) score += 2;
+                return {phrase:p, score};
+            });
+
+            relevance.sort((a,b)=>b.score-a.score);
+
+            response = "";
+            for(let r of relevance){
+                if(response.length + r.phrase.length > this.IP) break;
+                response += r.phrase + " ";
+            }
+
+            if(this.personality.mood==="happy") response="😄 "+response;
+            else if(this.personality.mood==="curious") response="🤔 "+response;
+            else if(this.personality.mood==="playful") response="😏 "+response;
+            else if(this.personality.mood==="comforting") response="💙 "+response;
+
+            response = response.trim();
+            if(!/[.!?]$/.test(response)) response+=".";
         }
-
-        // Mood emoji
-        if(this.personality.mood==="happy") response="😄 "+response;
-        else if(this.personality.mood==="curious") response="🤔 "+response;
-        else if(this.personality.mood==="playful") response="😏 "+response;
-        else if(this.personality.mood==="comforting") response="💙 "+response;
-
-        response = response.trim();
-        if(!/[.!?]$/.test(response)) response+=".";
 
         this.remember(response);
         return response;

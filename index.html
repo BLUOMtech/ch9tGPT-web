@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ch9tGPT Super Ultimate 4.0</title>
+<title>ch9tGPT Super Ultimate 4.1</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -49,11 +49,6 @@ sendBtn.addEventListener("click",()=>{
 
     setTimeout(()=>{
         let response=bot.generateResponse(text);
-
-        if(text.toLowerCase().includes("draw") || text.toLowerCase().includes("image"))
-            response=generateImage(text);
-        else if(text.toLowerCase().includes("code") || text.toLowerCase().includes("program"))
-            response=generateCode(text);
 
         chatbox.lastChild.textContent="";
         addMessage("ch9tGPT",response);
