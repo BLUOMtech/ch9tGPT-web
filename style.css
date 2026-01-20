@@ -1,0 +1,11 @@
+body {font-family: Arial; background:#121212; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; margin:0;}
+.container {width:95%; max-width:500px; background:#1e1e1e; padding:20px; border-radius:15px;}
+#chatbox {height:400px; overflow-y:auto; border:1px solid #333; padding:10px; margin-bottom:10px; border-radius:10px; background:#222;}
+#chatbox div{margin:5px 0; padding:5px 10px; border-radius:10px;}
+.You{background:#007bff; color:white; align-self:flex-end;}
+.ch9tGPT{background:#28a745; color:white; align-self:flex-start;}
+input[type=text]{width:60%; padding:10px; border-radius:10px; border:none;}
+button{padding:10px 15px; border-radius:10px; border:none; background:#007bff; color:white; cursor:pointer;}
+input[type=file]{margin-top:10px;}
+.file-preview img, .file-preview video{max-width:100%; margin-top:5px; border-radius:10px;}
+.file-preview p{background:#333; padding:5px; border-radius:5px;}
