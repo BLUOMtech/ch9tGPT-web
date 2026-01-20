@@ -3,49 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ch9tGPT Super Ultimate 3.1</title>
+<title>ch9tGPT Super Ultimate</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
-    <h1>ch9tGPT 🤖</h1>
-    <div id="chatbox"></div>
+<h1>ch9tGPT 🤖</h1>
+<div id="chatbox"></div>
 
-    <input type="text" id="userInput" placeholder="Type a message...">
-    <button id="sendBtn">Send</button>
-    <input type="file" id="fileUpload" multiple>
+<input type="text" id="userInput" placeholder="Type a message...">
+<button id="sendBtn">Send</button>
+<input type="file" id="fileUpload" multiple>
 </div>
 
-<script src="utils.js"></script>
 <script src="ai_model.js"></script>
 <script src="upload_handler.js"></script>
 <script src="image_gen.js"></script>
 <script src="code_gen.js"></script>
 
 <script>
-const chatbox = document.getElementById("chatbox");
-const input = document.getElementById("userInput");
-const sendBtn = document.getElementById("sendBtn");
-const fileUpload = document.getElementById("fileUpload");
+const chatbox=document.getElementById("chatbox");
+const input=document.getElementById("userInput");
+const sendBtn=document.getElementById("sendBtn");
+const fileUpload=document.getElementById("fileUpload");
 
 function addMessage(sender, content){
-    const msg = document.createElement("div");
+    const msg=document.createElement("div");
     msg.className=sender;
 
-    if(content.startsWith("data:image")){
-        msg.innerHTML = `<img src="${content}" alt="Generated Image"/>`;
-    } else if(content.includes("<") || content.includes("function") || content.includes("def")){
-        msg.innerHTML = `<pre>${content}</pre>`;
-    } else {
-        msg.textContent = `${sender}: ${content}`;
-    }
+    if(content.startsWith("data:image")) msg.innerHTML=`<img src="${content}" alt="Generated Image"/>`;
+    else if(content.includes("<") || content.includes("function") || content.includes("def")) msg.innerHTML=`<pre>${content}</pre>`;
+    else msg.textContent=content;
 
     chatbox.appendChild(msg);
-    chatbox.scrollTop = chatbox.scrollHeight;
+    chatbox.scrollTop=chatbox.scrollHeight;
 }
 
-sendBtn.addEventListener("click", ()=>{
-    const text = input.value.trim();
+sendBtn.addEventListener("click",()=>{
+    const text=input.value.trim();
     if(!text) return;
 
     addMessage("You", text);
@@ -53,26 +48,25 @@ sendBtn.addEventListener("click", ()=>{
     addMessage("ch9tGPT","Typing...");
 
     setTimeout(()=>{
-        let response = bot.generateResponse(text);
+        let response=bot.generateResponse(text);
 
-        if(text.toLowerCase().includes("draw") || text.toLowerCase().includes("image")){
-            response = generateImage(text);
-        } else if(text.toLowerCase().includes("code") || text.toLowerCase().includes("program")){
-            response = generateCode(text);
-        }
+        if(text.toLowerCase().includes("draw") || text.toLowerCase().includes("image"))
+            response=generateImage(text);
+        else if(text.toLowerCase().includes("code") || text.toLowerCase().includes("program"))
+            response=generateCode(text);
 
-        chatbox.lastChild.textContent = "";
-        addMessage("ch9tGPT", response);
-    }, 500 + Math.random()*1200);
+        chatbox.lastChild.textContent="";
+        addMessage("ch9tGPT",response);
+    }, 500+Math.random()*1200);
 
     input.value="";
 });
 
-input.addEventListener("keypress", e=>{
+input.addEventListener("keypress",e=>{
     if(e.key==="Enter") sendBtn.click();
 });
 
-fileUpload.addEventListener("change", handleFileUpload);
+fileUpload.addEventListener("change",handleFileUpload);
 </script>
 </body>
 </html>
