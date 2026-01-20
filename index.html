@@ -1,160 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ch9tGPT</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #0d0f14;
-            color: white;
-        }
-
-        #app {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        #messages {
-            background: #1a1c22;
-            padding: 15px;
-            border-radius: 8px;
-            height: 350px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            border: 1px solid #333;
-        }
-
-        .msg {
-            margin-bottom: 12px;
-            padding: 10px;
-            border-radius: 6px;
-            max-width: 80%;
-        }
-
-        .user {
-            background: #2d75ff;
-            margin-left: auto;
-        }
-
-        .bot {
-            background: #2e2e38;
-            margin-right: auto;
-        }
-
-        #input-area {
-            display: flex;
-            gap: 10px;
-        }
-
-        #userInput {
-            flex: 1;
-            padding: 12px;
-            border-radius: 6px;
-            border: none;
-            font-size: 16px;
-        }
-
-        #sendBtn {
-            padding: 12px 20px;
-            background: #2d75ff;
-            border: none;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        #sendBtn:hover {
-            background: #1f5fe0;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ch9tGPT Ultimate</title>
+<style>
+body {margin:0;padding:0;font-family:Arial,sans-serif;background:#0d0f14;color:white;}
+#app{max-width:600px;margin:auto;padding:20px;}
+h1{text-align:center;margin-bottom:20px;}
+#messages{background:#1a1c22;padding:15px;border-radius:8px;height:350px;overflow-y:auto;margin-bottom:20px;border:1px solid #333;}
+.msg{margin-bottom:12px;padding:10px;border-radius:6px;max-width:80%;}
+.user{background:#2d75ff;margin-left:auto;}
+.bot{background:#2e2e38;margin-right:auto;}
+#input-area{display:flex;gap:10px;}
+#userInput{flex:1;padding:12px;border-radius:6px;border:none;font-size:16px;}
+#sendBtn{padding:12px 20px;background:#2d75ff;border:none;border-radius:6px;color:#fff;font-size:16px;cursor:pointer;}
+#sendBtn:hover{background:#1f5fe0;}
+#fileInput{margin-top:10px;}
+.output-area{background:#1a1c22;padding:10px;margin-top:10px;border-radius:6px;overflow:auto;}
+</style>
 </head>
-
 <body>
-    <div id="app">
-        <h1>ch9tGPT</h1>
+<div id="app">
+<h1>ch9tGPT Ultimate</h1>
+<div id="messages"></div>
+<div id="input-area">
+<input id="userInput" placeholder="Type a message..." />
+<button id="sendBtn">Send</button>
+</div>
+<input type="file" id="fileInput" multiple />
+<div class="output-area" id="fileOutput"></div>
+</div>
 
-        <div id="messages"></div>
+<!-- ERUDA DEVTOOLS -->
+<script src="https://cdn.jsdelivr.net/gh/liriliri/eruda/eruda.min.js"></script>
+<script>
+eruda.init();
+eruda.show(); // ALWAYS OPEN CONSOLE
+console.log("Eruda devtools loaded ✔");
+</script>
 
-        <div id="input-area">
-            <input id="userInput" placeholder="Type a message..." />
-            <button id="sendBtn">Send</button>
-        </div>
-    </div>
+<!-- AI MODEL + MEMORY + FILE UPLOAD + IMAGE/CODE GEN -->
+<script>
+// --- AI CLASS ---
+class Ch9tGPT {
+constructor(){
+this.memory=[];
+this.fileData=[];
+this.personality={mood:"curious",energy:80};
+this.IP=300;
+}
+remember(text){
+if(!text) return;
+this.memory.push(text);
+if(this.memory.length>200) this.memory.shift();
+console.log("Memory updated:",this.memory.slice(-5));
+}
+adjustMood(input){
+const t=input.toLowerCase();
+if(t.includes("hi")||t.includes("hello")) this.personality.mood="happy";
+if(t.includes("why")||t.includes("how")) this.personality.mood="curious";
+if(t.includes("fun")) this.personality.mood="playful";
+if(t.includes("sad")) this.personality.mood="comforting";
+}
+generateResponse(input){
+this.remember(input);
+this.adjustMood(input);
+const t=input.toLowerCase();
+if(t==="hi"||t==="hey"||t==="hello") return "😄 Hey! How’s it going?";
+if(t.includes("name")) return "I’m ch9tGPT 🤖 What about you?";
+if(t.includes("how are you")) return "Feeling great today! 😄";
+if(t.includes("draw")||t.includes("image")) return this.generateImage(input);
+if(t.includes("code")||t.includes("python")||t.includes("html")||t.includes("css")) return this.generateCode(input);
+let recent=this.memory.slice(-20).join(" ");
+let files=this.fileData.map(f=>f.text).join(" ");
+let combined=`${recent} ${files} ${input}`.replace(/\[object.*?\]/gi,"");
+if(combined.length>this.IP) combined=combined.slice(0,this.IP);
+let emoji="🤔 ";
+if(this.personality.mood==="happy") emoji="😄 ";
+if(this.personality.mood==="playful") emoji="😏 ";
+if(this.personality.mood==="comforting") emoji="💙 ";
+let out=emoji+combined.trim();
+if(!/[.!?]$/.test(out)) out+=".";
+console.log("Bot response:",out);
+this.remember(out);
+return out;
+}
+generateImage(prompt){
+return `🖼️ (Pretend image) Generated for: "${prompt}"`;
+}
+generateCode(prompt){
+if(prompt.includes("python")) return "```python\nprint('Hello from ch9tGPT')\n```";
+if(prompt.includes("html")) return "```html\n<h1>Hello from ch9tGPT</h1>\n```";
+if(prompt.includes("css")) return "```css\nbody { background:#4af; color:white; }\n```";
+return "```javascript\nconsole.log('Hello from ch9tGPT');\n```";
+}
+async addFile(file){
+return new Promise(resolve=>{
+const reader=new FileReader();
+reader.onload=()=>{
+this.fileData.push({name:file.name,type:file.type,text:reader.result});
+console.log("File added:",file.name);
+resolve();
+};
+reader.readAsText(file);
+});
+}
+}
 
-    <!-- ERUDA DEVTOOLS FOR IPAD -->
-    <script src="https://cdn.jsdelivr.net/gh/liriliri/eruda/eruda.min.js"></script>
-    <script>
-        eruda.init();
-        // FORCE SHOW & ALWAYS OPEN
-        eruda.get('settings').set('displaySwitch', true);
-        eruda.show();
-        console.log("Eruda dev tools loaded ✔");
-    </script>
+// --- GLOBAL AI INSTANCE ---
+window.ch9tGPT=new Ch9tGPT();
 
-    <!-- AI MODEL -->
-    <script>
-        const messagesDiv = document.getElementById("messages");
-        const input = document.getElementById("userInput");
-        const sendBtn = document.getElementById("sendBtn");
+// --- CHAT FUNCTIONS ---
+const messagesDiv=document.getElementById("messages");
+const input=document.getElementById("userInput");
+const sendBtn=document.getElementById("sendBtn");
+const fileInput=document.getElementById("fileInput");
+const fileOutput=document.getElementById("fileOutput");
 
-        function addMessage(text, sender) {
-            const div = document.createElement("div");
-            div.className = "msg " + sender;
-            div.textContent = text;
-            messagesDiv.appendChild(div);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
+function addMessage(text,sender){
+const div=document.createElement("div");
+div.className="msg "+sender;
+div.textContent=text;
+messagesDiv.appendChild(div);
+messagesDiv.scrollTop=messagesDiv.scrollHeight;
+}
 
-        function genResponse(msg) {
-            console.log("User said:", msg);
+// SEND MESSAGE
+sendBtn.onclick=async()=>{
+let text=input.value.trim();
+if(!text) return;
+addMessage(text,"user");
+input.value="";
+let reply=window.ch9tGPT.generateResponse(text);
+addMessage(reply,"bot");
+};
 
-            if (!msg || msg.trim() === "") {
-                return "🤔 Say something, bro!";
-            }
+// ENTER KEY
+input.addEventListener("keypress",e=>{
+if(e.key==="Enter") sendBtn.click();
+});
 
-            const responses = [
-                "😄 That sounds cool!",
-                "🤔 Interesting...",
-                "🔥 Nice!",
-                "😎 Tell me more!",
-                "🤖 I'm thinking...",
-                "✨ Oooh okay!"
-            ];
-
-            const random = responses[Math.floor(Math.random() * responses.length)];
-
-            const final = random + " You said: " + msg;
-
-            console.log("Bot response:", final);
-            return final;
-        }
-
-        sendBtn.onclick = () => {
-            const text = input.value.trim();
-            if (!text) return;
-
-            addMessage(text, "user");
-            input.value = "";
-
-            const reply = genResponse(text);
-            addMessage(reply, "bot");
-        };
-
-        input.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") sendBtn.click();
-        });
-    </script>
+// FILE UPLOAD
+fileInput.addEventListener("change",async e=>{
+fileOutput.innerHTML="";
+for(const f of e.target.files){
+await window.ch9tGPT.addFile(f);
+const div=document.createElement("div");
+div.textContent=`📄 ${f.name} uploaded`;
+fileOutput.appendChild(div);
+}
+});
+</script>
 </body>
 </html>
