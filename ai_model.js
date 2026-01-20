@@ -1,14 +1,16 @@
 class Ch9tGPT {
     constructor() {
-        this.memory = []; // only strings
+        this.memory = []; // store messages as strings
         this.fileData = []; // uploaded file text
         this.personality = { mood: "curious", friendliness: 0.8, humor: 0.4 };
+        this.IQ = 300; // Intelligence Power
     }
 
     remember(message) {
-        if(typeof message === "string" && message.trim() !== "")
+        if(typeof message==="string" && message.trim()!=="") {
             this.memory.push(message);
-        this.saveMemory();
+            this.saveMemory();
+        }
     }
 
     saveMemory() {
@@ -19,7 +21,6 @@ class Ch9tGPT {
     loadMemory() {
         const mem = localStorage.getItem("ch9tGPT_memory");
         const files = localStorage.getItem("ch9tGPT_files");
-
         if(mem) this.memory = JSON.parse(mem).filter(m=>typeof m==="string");
         if(files) this.fileData = JSON.parse(files).map(f=>({
             type: f.type||"",
@@ -39,41 +40,43 @@ class Ch9tGPT {
         if(text.includes("sad") || text.includes("unhappy")) this.personality.mood="comforting";
         else if(text.includes("happy") || text.includes("great")) this.personality.mood="happy";
         else this.personality.mood="curious";
-        if(Math.random() < 0.2) this.personality.mood="playful";
+        if(Math.random()<0.2) this.personality.mood="playful";
     }
 
     generateResponse(input) {
         this.remember(input);
 
-        // Build context (memory + files)
-        const recent = this.memory.slice(-20);
-        const fileContext = this.fileData.map(f=>f.text).filter(t=>t);
-        const context = [...recent, ...fileContext].join(" ");
+        // Build context
+        const recent = this.memory.slice(-50).join(" ");
+        const files = this.fileData.map(f=>f.text).filter(t=>t).join(" ");
+        const context = recent + " " + files + " " + input;
 
-        // Templates for human-like sentences
-        const templates = [
-            "I think '{input}' sounds interesting.",
-            "Hmm… '{input}'? Tell me more!",
-            "Wow! '{input}' really makes me curious.",
-            "I see, so you mean '{input}'.",
-            "😏 '{input}'… that's funny!",
-            "🤔 Let me think about '{input}'.",
-            "Haha, '{input}' sounds cool!",
-            "Interesting… '{input}' is quite something.",
-            "Oh! '{input}'? Tell me the story behind it.",
-            "💡 '{input}'… that gives me an idea!"
-        ];
+        // Break into phrases (~50 chars)
+        const phrases = context.match(/.{1,50}/g)||[];
 
-        let template = templates[Math.floor(Math.random()*templates.length)];
-        let response = template.replace("{input}", input);
+        // Weighted relevance
+        const relevance = phrases.map((p,i)=>{
+            let score = 1 + (i/phrases.length);
+            if(p.toLowerCase().includes(input.toLowerCase())) score += 2;
+            return {phrase:p, score};
+        });
 
-        // Mood twist
+        relevance.sort((a,b)=>b.score-a.score);
+
+        // Build response with IP=300 chars max
+        let response = "";
+        for(let r of relevance){
+            if(response.length + r.phrase.length > this.IP) break;
+            response += r.phrase + " ";
+        }
+
+        // Mood emoji
         if(this.personality.mood==="happy") response="😄 "+response;
         else if(this.personality.mood==="curious") response="🤔 "+response;
         else if(this.personality.mood==="playful") response="😏 "+response;
         else if(this.personality.mood==="comforting") response="💙 "+response;
 
-        response = response.charAt(0).toUpperCase()+response.slice(1);
+        response = response.trim();
         if(!/[.!?]$/.test(response)) response+=".";
 
         this.remember(response);
@@ -81,6 +84,5 @@ class Ch9tGPT {
     }
 }
 
-// Initialize bot
 const bot = new Ch9tGPT();
 bot.loadMemory();

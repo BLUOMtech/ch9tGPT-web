@@ -11,10 +11,10 @@ function handleFileUpload(event){
             let textContent="";
             if(file.type.startsWith("image/")){
                 div.innerHTML=`<img src="${e.target.result}" alt="${file.name}"/>`;
-                textContent="An image file uploaded: "+file.name;
+                textContent="Image file uploaded: "+file.name;
             } else if(file.type.startsWith("video/")){
                 div.innerHTML=`<video controls src="${e.target.result}"></video>`;
-                textContent="A video file uploaded: "+file.name;
+                textContent="Video file uploaded: "+file.name;
             } else if(file.type==="text/plain"){
                 div.innerHTML=`<p>${e.target.result}</p>`;
                 textContent=e.target.result;
