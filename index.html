@@ -93,10 +93,13 @@
         </div>
     </div>
 
-    <!-- DEVTOOLS FOR IPAD -->
+    <!-- ERUDA DEVTOOLS FOR IPAD -->
     <script src="https://cdn.jsdelivr.net/gh/liriliri/eruda/eruda.min.js"></script>
     <script>
         eruda.init();
+        // FORCE SHOW & ALWAYS OPEN
+        eruda.get('settings').set('displaySwitch', true);
+        eruda.show();
         console.log("Eruda dev tools loaded ✔");
     </script>
 
@@ -117,10 +120,10 @@
         function genResponse(msg) {
             console.log("User said:", msg);
 
-            // FIXED AI RESPONSE
-            if (!msg || msg.trim() === "") return "🤔 Say something, bro!";
+            if (!msg || msg.trim() === "") {
+                return "🤔 Say something, bro!";
+            }
 
-            // Simple personality
             const responses = [
                 "😄 That sounds cool!",
                 "🤔 Interesting...",
@@ -133,6 +136,7 @@
             const random = responses[Math.floor(Math.random() * responses.length)];
 
             const final = random + " You said: " + msg;
+
             console.log("Bot response:", final);
             return final;
         }
@@ -147,6 +151,10 @@
             const reply = genResponse(text);
             addMessage(reply, "bot");
         };
+
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendBtn.click();
+        });
     </script>
 </body>
 </html>
